@@ -23,7 +23,12 @@
 
 (setq doom-theme 'doom-dracula)
 
-(setq org-directory "~/Documents/org/")
+(setq org-directory "/home/nf/Documents/org/")
+(defun my/org/sync-to ()
+  (interactive)
+  (if (and (string-equal mode-name "Org") (string-equal (projectile-acquire-root) org-directory))
+      (start-process "rclone-org" "*rclone-org*" "rclone" "sync" "--include" "*.org" org-directory "d:org")))
+(add-hook 'after-save-hook 'my/org/sync-to)
 
 (setq display-line-numbers-type t)
 
