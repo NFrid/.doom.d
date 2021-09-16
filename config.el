@@ -1,17 +1,33 @@
 ;;; config.el -*- lexical-binding: t; -*-
 
-(defun my/git-ls ()
+(defun my/git-ls (&optional path)
   "Find file in the current Git repository."
   (interactive)
-  (let* ((default-directory (locate-dominating-file
-                             default-directory ".git"))
+  (let* ((temp default-directory)
+         (default-directory (if (equal path nil)
+                                (locate-dominating-file
+                                 default-directory ".git")
+                              path))
          (cands (split-string
                  (shell-command-to-string
                   "git ls-files --full-name --")
                  "\n"))
          (file (completing-read "Find file: " cands)))
     (when file
-      (find-file file))))
+      (if (equal file "")
+          (setq default-directory temp)
+        (find-file file))
+      )))
+
+(map! :leader :desc "Find in git ls-files"
+      :n "fg" 'my/git-ls)
+
+(defun my/git-ls-dot ()
+  (interactive)
+  (my/git-ls "~/"))
+
+(map! :leader :desc "Find in git ls-files"
+      :n "fG" 'my/git-ls-dot)
 
 (setq user-full-name "Nick Friday"
       user-mail-address "nfriday@ya.ru")
@@ -24,11 +40,33 @@
 (setq doom-theme 'doom-dracula)
 
 (setq org-directory "/home/nf/Documents/org/")
-(defun my/org/sync-to ()
+
+;; (defun my/org/sync-to ()
+;;   (interactive)
+;;   (if (string-match (concat org-directory ".*/*\\.org") buffer-file-name)
+;;       (start-process "rclone-org" nil "rclone" "sync" "--include" "*.org" org-directory "d:org")))
+;; (add-hook 'after-save-hook 'my/org/sync-to)
+
+(defun my/format/org-to-report (str)
+  (replace-regexp-in-string
+   "^\\+ "
+   "* "
+   (replace-regexp-in-string
+    "^\\*+ "
+    "\n"
+    (replace-regexp-in-string
+     "\\[\\[.+\\]\\[\\(.+\\)\\]\\]"
+     "\\1"
+     str))))
+
+(defun my/org-subtree-to-report ()
   (interactive)
-  (if (and (string-equal mode-name "Org") (string-equal (projectile-acquire-root) org-directory))
-      (start-process "rclone-org" nil "rclone" "sync" "--include" "*.org" org-directory "d:org")))
-(add-hook 'after-save-hook 'my/org/sync-to)
+  (org-copy-subtree)
+  (kill-new (my/format/org-to-report
+    (substring-no-properties (car kill-ring)))))
+
+(map! :localleader :desc "Copy org heading to report text" :mode org-mode
+      :n "zr" 'my/org-subtree-to-report)
 
 (setq display-line-numbers-type t)
 
@@ -135,9 +173,6 @@
 (global-auto-composition-mode -1)
 (map! :leader :desc "Toggle character composition (laggy for big text)"
       :n "td" 'auto-composition-mode)
-
-(map! :leader :desc "Find in git ls-files"
-      :n "fg" 'my/git-ls)
 
 (map!
  :i "C-h" 'backward-delete-char
