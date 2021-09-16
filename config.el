@@ -27,7 +27,7 @@
 (defun my/org/sync-to ()
   (interactive)
   (if (and (string-equal mode-name "Org") (string-equal (projectile-acquire-root) org-directory))
-      (start-process "rclone-org" "*rclone-org*" "rclone" "sync" "--include" "*.org" org-directory "d:org")))
+      (start-process "rclone-org" nil "rclone" "sync" "--include" "*.org" org-directory "d:org")))
 (add-hook 'after-save-hook 'my/org/sync-to)
 
 (setq display-line-numbers-type t)
@@ -132,18 +132,9 @@
         :n "C-l" '+tabs:next-or-goto))
 (add-hook 'c-mode-common-hook 'my/c-mode-common-hook)
 
-(defun my/the/delag ()
-  (interactive)
-  (so-long-minor-mode 1)
-  (rainbow-delimiters-mode 1)
-  (flycheck-mode 1)
-  (hl-line-mode 1)
-  (highlight-indent-guides-mode 1)
-  (smartparens-mode 1)
-)
-
-(map! :leader :desc "Delag current buffer"
-      :n "zd" 'my/the/delag)
+(global-auto-composition-mode -1)
+(map! :leader :desc "Toggle character composition (laggy for big text)"
+      :n "td" 'auto-composition-mode)
 
 (map! :leader :desc "Find in git ls-files"
       :n "fg" 'my/git-ls)
