@@ -196,6 +196,13 @@ this file. Emacs searches the =load-path= when you load packages with
   (setq reverse-im-input-methods '("russian-computer"))
   (reverse-im-mode))
 #+end_src
+** Org link mode
+#+begin_src emacs-lisp
+(define-globalized-minor-mode org-link-global-mode org-link-minor-mode
+  (lambda () (org-link-minor-mode 1)))
+
+(org-link-global-mode 1)
+#+end_src
 * Idk mappings
 #+begin_src emacs-lisp
 (map! :n "C-h" '+tabs:previous-or-goto

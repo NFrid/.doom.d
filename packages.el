@@ -13,3 +13,5 @@
 (package! evil-snipe :disable t)
 
 (package! prettier-js)
+
+(package! org-link-minor-mode)

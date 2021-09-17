@@ -178,6 +178,13 @@
   (reverse-im-mode))
 ;; Reverse IM:1 ends here
 
+;; [[file:config.org::*Org link mode][Org link mode:1]]
+(define-globalized-minor-mode org-link-global-mode org-link-minor-mode
+  (lambda () (org-link-minor-mode 1)))
+
+(org-link-global-mode 1)
+;; Org link mode:1 ends here
+
 ;; [[file:config.org::*Idk mappings][Idk mappings:1]]
 (map! :n "C-h" '+tabs:previous-or-goto
       :n "C-l" '+tabs:next-or-goto)
