@@ -1,8 +1,13 @@
-;; [[file:config.org::+BEGIN_SRC emacs-lisp][No heading:1]]
+#+TITLE: Doom Emacs config
+#+AUTHOR: Nick Friday
+#+PROPERTY: header-args :emacs-lisp :tangle yes :comments link
+#+STARTUP: org-startup-folded: content
+#+BEGIN_SRC emacs-lisp
 ;; -*- lexical-binding: t -*-
-;; No heading:1 ends here
+#+END_SRC
 
-;; [[file:config.org::*Git ls][Git ls:1]]
+* Git ls
+#+BEGIN_SRC emacs-lisp
 (defun my/git-ls (&optional path)
   "Find file in the current Git repository."
   (interactive)
@@ -31,23 +36,25 @@
 
 (map! :leader :desc "Find in git ls-files"
       :n "fG" 'my/git-ls-dot)
-;; Git ls:1 ends here
 
-;; [[file:config.org::*Me][Me:1]]
+#+END_SRC
+* Basic settings
+** Me
+#+begin_src emacs-lisp
 (setq user-full-name "Nick Friday"
       user-mail-address "nfriday@ya.ru")
-;; Me:1 ends here
-
-;; [[file:config.org::*Look and feel][Look and feel:1]]
+#+end_src
+** Look and feel
+#+begin_src emacs-lisp
 (defun my-font (size) (font-spec :family "Iosevka nf" :size size))
 (setq doom-font (my-font 18)
       doom-big-font (my-font 32)
       doom-variable-pitch-font (font-spec :family "Arial" :size 20))
 
 (setq doom-theme 'doom-dracula)
-;; Look and feel:1 ends here
-
-;; [[file:config.org::*Stuff][Stuff:1]]
+#+end_src
+** Stuff
+#+begin_src emacs-lisp
 (setq display-line-numbers-type t)
 
 (setq-default tab-width 2)
@@ -55,9 +62,9 @@
 (setq-default evil-shift-width 2)
 
 (setq calendar-week-start-day 1)
-;; Stuff:1 ends here
-
-;; [[file:config.org::*Org][Org:1]]
+#+end_src
+* Org
+#+begin_src emacs-lisp
 (setq org-directory (concat (getenv "HOME") "/Documents/org/"))
 
 ;; (defun my/org/sync-to ()
@@ -93,16 +100,17 @@
  '(org-level-3 ((t (:inherit outline-3 :height 1.3))))
  '(org-level-4 ((t (:inherit outline-4 :height 1.2))))
  '(org-level-5 ((t (:inherit outline-5 :height 1.1)))))
-;; Org:1 ends here
-
-;; [[file:config.org::*JS][JS:1]]
+#+end_src
+* Prettify
+** JS
+#+begin_src emacs-lisp
 (defun my/prettify/js-hook ()
     (interactive)
   (setq prettify-symbols-alist '()))
 (add-hook 'js-mode-hook 'my/prettify/js-hook)
-;; JS:1 ends here
-
-;; [[file:config.org::*Org][Org:1]]
+#+end_src
+** Org
+#+begin_src emacs-lisp
 (defun my/prettify/org-hook ()
     (interactive)
     (setq prettify-symbols-alist '(
@@ -129,16 +137,27 @@
                                    ("DEADLINE:" . "")))
     (prettify-symbols-mode 1))
 ;; (add-hook 'org-mode-hook 'my/prettify/org-hook)
-;; Org:1 ends here
+#+end_src
 
-;; [[file:config.org::*Roam][Roam:1]]
+
+=load!= for loading external *.el files relative to this one
+=use-package!= for configuring packages
+=after!= for running code after a package has loaded
+=add-load-path!= for adding directories to the =load-path=, relative to
+this file. Emacs searches the =load-path= when you load packages with
+=require= or =use-package=.
+=map!= for binding new keys
+
+* Plugins
+** Roam
+#+begin_src emacs-lisp
 (use-package! org-roam
   :bind
   ("C-c i" . org-roam-node-insert)
 )
-;; Roam:1 ends here
-
-;; [[file:config.org::*Treesitter][Treesitter:1]]
+#+end_src
+** Treesitter
+#+begin_src emacs-lisp
 (use-package! tree-sitter
   :config
   (require 'tree-sitter-langs)
@@ -146,21 +165,21 @@
   (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
   (pushnew! tree-sitter-major-mode-language-alist
             '(scss-mode . css)))
-;; Treesitter:1 ends here
-
-;; [[file:config.org::*Rainbow delimiters][Rainbow delimiters:1]]
+#+end_src
+** Rainbow delimiters
+#+begin_src emacs-lisp
 (use-package! rainbow-delimiters
   :config
   (add-hook 'prog-mode-hook 'rainbow-delimiters-mode))
-;; Rainbow delimiters:1 ends here
-
-;; [[file:config.org::*Indent guides][Indent guides:1]]
+#+end_src
+** Indent guides
+#+begin_src emacs-lisp
 (use-package! highlight-indent-guides
   :config
   (add-hook 'prog-mode-hook 'highlight-indent-guides-mode))
-;; Indent guides:1 ends here
-
-;; [[file:config.org::*Company +tabnine][Company +tabnine:1]]
+#+end_src
+** Company +tabnine
+#+begin_src emacs-lisp
 (use-package! company
   :config
   (setq company-show-quick-access t)
@@ -169,16 +188,16 @@
 (use-package! company-tabnine
   :config
   (add-to-list 'company-backends #'company-tabnine))
-;; Company +tabnine:1 ends here
-
-;; [[file:config.org::*Reverse IM][Reverse IM:1]]
+#+end_src
+** Reverse IM
+#+begin_src emacs-lisp
 (use-package! reverse-im
   :config
   (setq reverse-im-input-methods '("russian-computer"))
   (reverse-im-mode))
-;; Reverse IM:1 ends here
-
-;; [[file:config.org::*Idk mappings][Idk mappings:1]]
+#+end_src
+* Idk mappings
+#+begin_src emacs-lisp
 (map! :n "C-h" '+tabs:previous-or-goto
       :n "C-l" '+tabs:next-or-goto)
 
@@ -227,4 +246,5 @@
       :desc "find char to" :mn "t" 'evilem-motion-find-char-to
       :desc "find char back" :mn "F" 'evilem-motion-find-char-backward
       :desc "find char back to" :mn "T" 'evilem-motion-find-char-backward-to)
-;; Idk mappings:1 ends here
+
+#+end_src
