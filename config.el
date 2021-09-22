@@ -39,9 +39,9 @@
 ;; Me:1 ends here
 
 ;; [[file:config.org::*Look and feel][Look and feel:1]]
-(defun my-font (size) (font-spec :family "Iosevka nf" :size size))
+(defun my-font (size) (font-spec :family "Iosevka nf" :width 'expanded :size size))
 (setq doom-font (my-font 18)
-      doom-big-font (my-font 32)
+      doom-big-font (my-font 24)
       doom-variable-pitch-font (font-spec :family "Arial" :size 20))
 
 (setq doom-theme 'doom-dracula)
@@ -57,15 +57,30 @@
 (setq calendar-week-start-day 1)
 ;; Stuff:1 ends here
 
-;; [[file:config.org::*Org][Org:1]]
+;; [[file:config.org::*Basics][Basics:1]]
 (setq org-directory (concat (getenv "HOME") "/Documents/org/"))
+;; Basics:1 ends here
 
-;; (defun my/org/sync-to ()
-;;   (interactive)
-;;   (if (string-match (concat org-directory ".*/*\\.org") buffer-file-name)
-;;       (start-process "rclone-org" nil "rclone" "sync" "--include" "*.org" org-directory "d:org")))
-;; (add-hook 'after-save-hook 'my/org/sync-to)
+;; [[file:config.org::*Basics][Basics:2]]
+(defun my/org/hook ()
+  (interactive)
+  (+company/toggle-auto-completion))
+;; Basics:2 ends here
 
+;; [[file:config.org::*Basics][Basics:3]]
+(add-hook 'org-mode-hook 'my/org/hook)
+;; Basics:3 ends here
+
+;; [[file:config.org::*Heading font sizes][Heading font sizes:1]]
+(custom-set-faces
+ '(org-level-1 ((t (:inherit outline-1 :height 1.3))))
+ '(org-level-2 ((t (:inherit outline-2 :height 1.2))))
+ '(org-level-3 ((t (:inherit outline-3 :height 1.1))))
+ '(org-level-4 ((t (:inherit outline-4 :height 1.0))))
+ '(org-level-5 ((t (:inherit outline-5 :height 1.0)))))
+;; Heading font sizes:1 ends here
+
+;; [[file:config.org::*Subtree to report][Subtree to report:1]]
 (defun my/format/org-to-report (str)
   (replace-regexp-in-string
    "^\\+ "
@@ -86,14 +101,15 @@
 
 (map! :localleader :desc "Copy org heading to report text" :mode org-mode
       :n "zr" 'my/org-subtree-to-report)
+;; Subtree to report:1 ends here
 
-(custom-set-faces
- '(org-level-1 ((t (:inherit outline-1 :height 1.5))))
- '(org-level-2 ((t (:inherit outline-2 :height 1.4))))
- '(org-level-3 ((t (:inherit outline-3 :height 1.3))))
- '(org-level-4 ((t (:inherit outline-4 :height 1.2))))
- '(org-level-5 ((t (:inherit outline-5 :height 1.1)))))
-;; Org:1 ends here
+;; [[file:config.org::*Sync by rclone][Sync by rclone:1]]
+;; (defun my/org/sync-to ()
+;;   (interactive)
+;;   (if (string-match (concat org-directory ".*/*\\.org") buffer-file-name)
+;;       (start-process "rclone-org" nil "rclone" "sync" "--include" "*.org" org-directory "d:org")))
+;; (add-hook 'after-save-hook 'my/org/sync-to)
+;; Sync by rclone:1 ends here
 
 ;; [[file:config.org::*JS][JS:1]]
 (defun my/prettify/js-hook ()
@@ -185,16 +201,23 @@
 (org-link-global-mode 1)
 ;; Org link mode:1 ends here
 
+;; [[file:config.org::*Vterm][Vterm:1]]
+(use-package! vterm
+  :config
+  (map! :mode vterm-mode
+        :g "C-c C-d" 'vterm-send-C-d))
+;; Vterm:1 ends here
+
 ;; [[file:config.org::*Idk mappings][Idk mappings:1]]
 (map! :n "C-h" '+tabs:previous-or-goto
       :n "C-l" '+tabs:next-or-goto)
 
-(defun my/c-mode-common-hook ()
+(defun my/c/map-hook ()
   (interactive)
-  (map! :map (c-mode-map c++-mode-map cpp-mode-map)
+  (map! :map c-mode-map
         :n "C-h" '+tabs:previous-or-goto
         :n "C-l" '+tabs:next-or-goto))
-(add-hook 'c-mode-common-hook 'my/c-mode-common-hook)
+(add-hook 'c-mode-hook 'my/c/map-hook)
 
 (global-auto-composition-mode -1)
 (map! :leader :desc "Toggle character composition (laggy for big text)"
