@@ -202,21 +202,21 @@
 ;; Org link mode:1 ends here
 
 ;; [[file:config.org::*Vterm][Vterm:1]]
-(use-package! vterm
-  :config
-  (map! :mode vterm-mode
-        :g "C-c C-d" 'vterm-send-C-d))
+;; (use-package! vterm
+;;   :config
+;;   (map! :mode vterm-mode
+;;         :g "C-c C-d" 'vterm-send-C-d))
 ;; Vterm:1 ends here
 
 ;; [[file:config.org::*Idk mappings][Idk mappings:1]]
-(map! :n "C-h" '+tabs:previous-or-goto
-      :n "C-l" '+tabs:next-or-goto)
+(map! :desc "Next workspace" :n "C-l" '+workspace:switch-next
+      :desc "Prev workspace" :n "C-h" '+workspace:switch-previous)
 
 (defun my/c/map-hook ()
   (interactive)
   (map! :map c-mode-map
-        :n "C-h" '+tabs:previous-or-goto
-        :n "C-l" '+tabs:next-or-goto))
+      :desc "Next workspace" :n "C-l" '+workspace:switch-next
+      :desc "Prev workspace" :n "C-h" '+workspace:switch-previous))
 (add-hook 'c-mode-hook 'my/c/map-hook)
 
 (global-auto-composition-mode -1)
@@ -226,13 +226,7 @@
 (map!
  :i "C-h" 'backward-delete-char)
 
-(map! :n "SPC ESC" 'centaur-tabs-toggle-groups)
-
 (map! :n "Q" 'kill-this-buffer)
-
-(map! :leader
-      :desc "Next workspace" :n "j" '+workspace:switch-next
-      :desc "Prev workspace" :n "k" '+workspace:switch-previous)
 
 (map! :n "s" nil)
 (map! :prefix "s"
