@@ -1,9 +1,82 @@
-;; [[file:config.org::+BEGIN_SRC emacs-lisp][No heading:1]]
-;; -*- lexical-binding: t -*-
-;; No heading:1 ends here
+;; ########################################################################## ;;
+;; ########################### The `config.el' 🗿 ########################### ;;
+;; ########################################################################## ;;
 
-;; [[file:config.org::*Git ls][Git ls:1]]
-(defun my/git-ls (&optional path)
+;; ------------------------------- muh stuff -------------------------------- ;;
+
+(defun ~/magit-process-environment (env)
+  "Add GIT_DIR and GIT_WORK_TREE to ENV when in a special directory.
+https://github.com/magit/magit/issues/460 (@cpitclaudel)."
+  (let ((default (file-name-as-directory (expand-file-name default-directory)))
+        (home (expand-file-name "~/")))
+    (when (string= default home)
+      (let ((gitdir (expand-file-name "~/.dot/")))
+        (push (format "GIT_WORK_TREE=%s" home) env)
+        (push (format "GIT_DIR=%s" gitdir) env))))
+  env)
+
+(advice-add 'magit-process-environment
+            :filter-return #'~/magit-process-environment)
+
+
+(defun my/commentitle (text comin char comout)
+  (let (tlen nchar)
+    (setq tlen (string-width text))
+    (setq nchar (- fill-column tlen 4
+                   (+ (string-width comin)
+                      (string-width comout))))
+
+    (insert (concat comin " "
+                    (make-string (/ nchar 2) char)
+                    " " text " "
+                    (make-string (+ (/ nchar 2) (% nchar 2)) char)
+                    " " comout))))
+
+
+(defun my/commentitle/c-dashes (text)
+  (interactive "s(C-dashes) Text: ")
+  (my/commentitle text "/*" ?- "*/")
+  (insert "\n"))
+
+(defun my/commentitle/c-hashes (text)
+  (interactive "s(C-hashes) Text: ")
+  (my/commentitle text "/*" ?# "*/")
+  (insert "\n"))
+
+(defun my/commentitle/c-box (text)
+  (interactive "s(C-box) Text: ")
+  (insert (concat "/* " (make-string (- fill-column 6) ?#) " */\n"))
+  (my/commentitle text "/*" ?# "*/")
+  (insert (concat "/* " (make-string (- fill-column 6) ?#) " */\n")))
+
+(map! :map c-mode-map
+      :i "C-c C-c -" 'my/commentitle/c-dashes
+      :i "C-c C-c #" 'my/commentitle/c-hashes
+      :i "C-c C-c b" 'my/commentitle/c-box)
+
+
+(defun my/commentitle/lisp-dashes (text)
+  (interactive "s(Lisp-dashes) Text: ")
+  (my/commentitle text ";;" ?- ";;")
+  (insert "\n"))
+
+(defun my/commentitle/lisp-hashes (text)
+  (interactive "s(Lisp-hashes) Text: ")
+  (my/commentitle text ";;" ?# ";;")
+  (insert "\n"))
+
+(defun my/commentitle/lisp-box (text)
+  (interactive "s(Lisp-box) Text: ")
+  (insert (concat ";; " (make-string (- fill-column 6) ?#) " ;;\n"))
+  (my/commentitle text ";;" ?# ";;")
+  (insert (concat "\n;; " (make-string (- fill-column 6) ?#) " ;;\n")))
+
+(map! :map (lisp-mode-map emacs-lisp-mode-map)
+      :i "C-c C-c -" 'my/commentitle/lisp-dashes
+      :i "C-c C-c #" 'my/commentitle/lisp-hashes
+      :i "C-c C-c b" 'my/commentitle/lisp-box)
+
+(defun my/git-ls (&optional path flags)
   "Find file in the current Git repository."
   (interactive)
   (let* ((temp default-directory)
@@ -13,7 +86,9 @@
                               path))
          (cands (split-string
                  (shell-command-to-string
-                  "git ls-files --full-name --")
+                  (format
+                   "git %s ls-files --full-name --"
+                   (if (equal flags nil) "" flags)))
                  "\n"))
          (file (completing-read "Find file: " cands)))
     (when file
@@ -27,27 +102,31 @@
 
 (defun my/git-ls-dot ()
   (interactive)
-  (my/git-ls "~/"))
+  (my/git-ls "~/" "--work-tree=. --git-dir=./.dot"))
 
 (map! :leader :desc "Find in git ls-files"
       :n "fG" 'my/git-ls-dot)
-;; Git ls:1 ends here
 
-;; [[file:config.org::*Me][Me:1]]
+(map! :leader :desc "Git Status for .dot"
+      :n "gd" (cmd! (magit-status (expand-file-name "~/"))))
+
+
+;; --------------------------------- basics --------------------------------- ;;
+
 (setq user-full-name "Nick Friday"
       user-mail-address "nfriday@ya.ru")
-;; Me:1 ends here
 
-;; [[file:config.org::*Look and feel][Look and feel:1]]
+
 (defun my-font (size) (font-spec :family "Iosevka nf" :width 'expanded :size size))
 (setq doom-font (my-font 18)
       doom-big-font (my-font 24)
       doom-variable-pitch-font (font-spec :family "Arial" :size 20))
 
-(setq doom-theme 'doom-dracula)
-;; Look and feel:1 ends here
+(set-fontset-font t 'symbol "Noto Color Emoji" nil 'append)
 
-;; [[file:config.org::*Stuff][Stuff:1]]
+(setq doom-theme 'doom-dracula)
+
+
 (setq display-line-numbers-type t)
 
 (setq-default tab-width 2)
@@ -55,32 +134,29 @@
 (setq-default evil-shift-width 2)
 
 (setq calendar-week-start-day 1)
-;; Stuff:1 ends here
 
-;; [[file:config.org::*Basics][Basics:1]]
+
+;; ---------------------------------- org? ---------------------------------- ;;
+
 (setq org-directory (concat (getenv "HOME") "/Documents/org/"))
-;; Basics:1 ends here
 
-;; [[file:config.org::*Basics][Basics:2]]
+
 (defun my/org/hook ()
   (interactive)
   (+company/toggle-auto-completion))
-;; Basics:2 ends here
 
-;; [[file:config.org::*Basics][Basics:3]]
+
 (add-hook 'org-mode-hook 'my/org/hook)
-;; Basics:3 ends here
 
-;; [[file:config.org::*Heading font sizes][Heading font sizes:1]]
+
 (custom-set-faces
  '(org-level-1 ((t (:inherit outline-1 :height 1.3))))
  '(org-level-2 ((t (:inherit outline-2 :height 1.2))))
  '(org-level-3 ((t (:inherit outline-3 :height 1.1))))
  '(org-level-4 ((t (:inherit outline-4 :height 1.0))))
  '(org-level-5 ((t (:inherit outline-5 :height 1.0)))))
-;; Heading font sizes:1 ends here
 
-;; [[file:config.org::*Subtree to report][Subtree to report:1]]
+
 (defun my/format/org-to-report (str)
   (replace-regexp-in-string
    "^\\+ "
@@ -97,13 +173,12 @@
   (interactive)
   (org-copy-subtree)
   (kill-new (my/format/org-to-report
-    (substring-no-properties (car kill-ring)))))
+             (substring-no-properties (car kill-ring)))))
 
 (map! :localleader :desc "Copy org heading to report text" :mode org-mode
       :n "zr" 'my/org-subtree-to-report)
-;; Subtree to report:1 ends here
 
-;; [[file:config.org::*Sync by rclone][Sync by rclone:1]]
+
 ;; (defun my/org/sync-to ()
 ;;   (interactive)
 ;;   (if (string-match (concat org-directory ".*/*\\.org") buffer-file-name)
@@ -111,50 +186,52 @@
 ;; (add-hook 'after-save-hook 'my/org/sync-to)
 ;; Sync by rclone:1 ends here
 
-;; [[file:config.org::*JS][JS:1]]
+
 (defun my/prettify/js-hook ()
-    (interactive)
+  (interactive)
   (setq prettify-symbols-alist '()))
 (add-hook 'js-mode-hook 'my/prettify/js-hook)
-;; JS:1 ends here
 
-;; [[file:config.org::*Org][Org:1]]
+
 (defun my/prettify/org-hook ()
-    (interactive)
-    (setq prettify-symbols-alist '(
-                                   ("#+begin_src" . "")
-                                   ("#+end_src" . "―")
-                                   ("#+BEGIN_SRC" . "")
-                                   ("#+END_SRC" . "―")
-                                   ("#+begin_quote" . "")
-                                   ("#+end_quote" . "")
-                                   ("#+BEGIN_QUOTE" . "")
-                                   ("#+END_QUOTE" . "")
-                                   (":PROPERTIES:" . "")
-                                   (":END:" . "―")
-                                   ("#+STARTUP:" . "")
-                                   ("#+TITLE:" . "")
-                                   ("#+RESULTS:" . "")
-                                   ("#+NAME:" . "")
-                                   ("#+ROAM_TAGS:" . "")
-                                   ("#+FILETAGS:" . "")
-                                   ("#+HTML_HEAD:" . "")
-                                   ("#+SUBTITLE:" . "")
-                                   ("#+AUTHOR:" . "")
-                                   ("SCHEDULED:" . "")
-                                   ("DEADLINE:" . "")))
-    (prettify-symbols-mode 1))
+  (interactive)
+  (setq prettify-symbols-alist '(
+                                 ("#+begin_src" . "")
+                                 ("#+end_src" . "―")
+                                 ("#+BEGIN_SRC" . "")
+                                 ("#+END_SRC" . "―")
+                                 ("#+begin_quote" . "")
+                                 ("#+end_quote" . "")
+                                 ("#+BEGIN_QUOTE" . "")
+                                 ("#+END_QUOTE" . "")
+                                 (":PROPERTIES:" . "")
+                                 (":END:" . "―")
+                                 ("#+STARTUP:" . "")
+                                 ("#+TITLE:" . "")
+                                 ("#+RESULTS:" . "")
+                                 ("#+NAME:" . "")
+                                 ("#+ROAM_TAGS:" . "")
+                                 ("#+FILETAGS:" . "")
+                                 ("#+HTML_HEAD:" . "")
+                                 ("#+SUBTITLE:" . "")
+                                 ("#+AUTHOR:" . "")
+                                 ("SCHEDULED:" . "")
+                                 ("DEADLINE:" . "")))
+  (prettify-symbols-mode 1))
 ;; (add-hook 'org-mode-hook 'my/prettify/org-hook)
-;; Org:1 ends here
 
-;; [[file:config.org::*Roam][Roam:1]]
+
 (use-package! org-roam
   :bind
   ("C-c i" . org-roam-node-insert)
-)
-;; Roam:1 ends here
+  )
 
-;; [[file:config.org::*Treesitter][Treesitter:1]]
+
+(setq +zen-mixed-pitch-modes '())
+
+
+;; ------------------------------- some stuff ------------------------------- ;;
+
 (use-package! tree-sitter
   :config
   (require 'tree-sitter-langs)
@@ -162,21 +239,18 @@
   (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
   (pushnew! tree-sitter-major-mode-language-alist
             '(scss-mode . css)))
-;; Treesitter:1 ends here
 
-;; [[file:config.org::*Rainbow delimiters][Rainbow delimiters:1]]
+
 (use-package! rainbow-delimiters
   :config
   (add-hook 'prog-mode-hook 'rainbow-delimiters-mode))
-;; Rainbow delimiters:1 ends here
 
-;; [[file:config.org::*Indent guides][Indent guides:1]]
+
 (use-package! highlight-indent-guides
   :config
   (add-hook 'prog-mode-hook 'highlight-indent-guides-mode))
-;; Indent guides:1 ends here
 
-;; [[file:config.org::*Company +tabnine][Company +tabnine:1]]
+
 (use-package! company
   :config
   (setq company-show-quick-access t)
@@ -185,38 +259,88 @@
 (use-package! company-tabnine
   :config
   (add-to-list 'company-backends #'company-tabnine))
-;; Company +tabnine:1 ends here
 
-;; [[file:config.org::*Reverse IM][Reverse IM:1]]
+
 (use-package! reverse-im
   :config
   (setq reverse-im-input-methods '("russian-computer"))
   (reverse-im-mode))
-;; Reverse IM:1 ends here
 
-;; [[file:config.org::*Org link mode][Org link mode:1]]
-(define-globalized-minor-mode org-link-global-mode org-link-minor-mode
-  (lambda () (org-link-minor-mode 1)))
 
-(org-link-global-mode 1)
-;; Org link mode:1 ends here
+;; (define-globalized-minor-mode org-link-global-mode org-link-minor-mode
+;;   (lambda () (org-link-minor-mode 1)))
 
-;; [[file:config.org::*Vterm][Vterm:1]]
+;; (org-link-global-mode 1)
+
+
 ;; (use-package! vterm
 ;;   :config
 ;;   (map! :mode vterm-mode
 ;;         :g "C-c C-d" 'vterm-send-C-d))
-;; Vterm:1 ends here
 
-;; [[file:config.org::*Idk mappings][Idk mappings:1]]
+
+;; ----------------------------- chad dashboard ----------------------------- ;;
+
+(setq fancy-splash-image "~/Images/Emojiz/boomer.png")
+
+(setq +doom-dashboard-menu-sections
+      '(("(z) Last session"
+         :icon (all-the-icons-octicon "history" :face 'doom-dashboard-menu-title)
+         :when (cond ((featurep! :ui workspaces)
+                      (file-exists-p (expand-file-name persp-auto-save-fname persp-save-dir)))
+                     ((require 'desktop nil t)
+                      (file-exists-p (desktop-full-file-name))))
+         :face (:inherit (doom-dashboard-menu-title bold))
+         :action doom/quickload-session)
+        ("(a) Org-agenda"
+         :icon (all-the-icons-octicon "calendar" :face 'doom-dashboard-menu-title)
+         :when (fboundp 'org-agenda)
+         :action org-agenda)
+        ("(r) Recent files"
+         :icon (all-the-icons-octicon "file-text" :face 'doom-dashboard-menu-title)
+         :action recentf-open-files)
+        ("(p) Projectiles"
+         :icon (all-the-icons-octicon "briefcase" :face 'doom-dashboard-menu-title)
+         :action projectile-switch-project)
+        ("(b) Bookmarks"
+         :icon (all-the-icons-octicon "bookmark" :face 'doom-dashboard-menu-title)
+         :action bookmark-jump)
+        ("(c) Private config"
+         :icon (all-the-icons-octicon "tools" :face 'doom-dashboard-menu-title)
+         :when (file-directory-p doom-private-dir)
+         :action doom/open-private-config)
+        ("(.) Dotfiles"
+         :icon (all-the-icons-octicon "settings" :face 'doom-dashboard-menu-title)
+         :action my/git-ls-dot)
+        ("(q) Kill workspace"
+         :icon (all-the-icons-octicon "x" :face 'doom-dashboard-menu-title)
+         :action +workspace/delete)))
+
+(map! :map +doom-dashboard-mode-map
+      :ne "z" #'doom/quickload-session
+      :ne "a" #'org-agenda
+      :ne "r" #'recentf-open-files
+      :ne "p" #'projectile-switch-project
+      :ne "c" #'doom/open-private-config
+      :ne "b" #'bookmark-jump
+      :ne "." #'my/git-ls-dot
+      :ne "q" #'+workspace/delete)
+
+
+(map! :nv "j" 'evil-next-visual-line
+      :nv "k" 'evil-previous-visual-line)
+
+
+;; ---------------------------- maps, I believe ----------------------------- ;;
+
 (map! :desc "Next workspace" :n "C-l" '+workspace:switch-next
       :desc "Prev workspace" :n "C-h" '+workspace:switch-previous)
 
 (defun my/c/map-hook ()
   (interactive)
   (map! :map c-mode-map
-      :desc "Next workspace" :n "C-l" '+workspace:switch-next
-      :desc "Prev workspace" :n "C-h" '+workspace:switch-previous))
+        :desc "Next workspace" :n "C-l" '+workspace:switch-next
+        :desc "Prev workspace" :n "C-h" '+workspace:switch-previous))
 (add-hook 'c-mode-hook 'my/c/map-hook)
 
 (global-auto-composition-mode -1)
@@ -251,4 +375,6 @@
       :desc "find char to" :mn "t" 'evilem-motion-find-char-to
       :desc "find char back" :mn "F" 'evilem-motion-find-char-backward
       :desc "find char back to" :mn "T" 'evilem-motion-find-char-backward-to)
-;; Idk mappings:1 ends here
+
+(map! :map magit-mode-map
+      :nv "x" 'magit-discard)

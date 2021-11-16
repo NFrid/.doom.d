@@ -14,4 +14,6 @@
 
 (package! prettier-js)
 
-(package! org-link-minor-mode)
+;; (package! org-link-minor-mode)
+
+;; (package! dashboard)
