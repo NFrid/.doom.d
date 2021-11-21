@@ -2,6 +2,8 @@
 ;; ########################### The `config.el' 🗿 ########################### ;;
 ;; ########################################################################## ;;
 
+;; TODO: organize this whole thing
+
 ;; ------------------------------- muh stuff -------------------------------- ;;
 
 (defun ~/magit-process-environment (env)
@@ -267,6 +269,12 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
   (reverse-im-mode))
 
 
+;; ----------------------------- grammar stuff ------------------------------ ;;
+
+(setq langtool-default-language "ru-RU")
+(setq ispell-personal-dictionary "~/.doom.d/.spelldic")
+
+
 ;; (define-globalized-minor-mode org-link-global-mode org-link-minor-mode
 ;;   (lambda () (org-link-minor-mode 1)))
 
@@ -331,7 +339,32 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
       :nv "k" 'evil-previous-visual-line)
 
 
-;; ---------------------------- maps, I believe ----------------------------- ;;
+(defun my/doom-dashboard-draw-ascii-banner-fn ()
+  (let* ((banner
+          '("  +oo+-+ss/      /osso:       /oss+:      -+sss+-      -+sss+-      :osso/     oo/ oo/ oo+"
+            "  MMMNNNMMMy   sNMMNNMMm:   yNMMNNMMm:  -hMMNNMMMh   :dMMNNMMMh   +mMMNNMMNo  +MM /MM :MMy"
+            " +MMMs--dMMM  yMMN+--mMMm  dMMm/--hmho  NMMd: /MMMo :MMMy: :mdh: +MMMy   MMM  dMM yMM sMM:"
+            " dMMm   dMMm  MMMo   hMMm /MMM:        sMMM    MMMo hMMm         NMMMdddmMMM  MMd NMm NMN "
+            " MMMo   MMMs oMMM    MMMs yMMN         mMMd   +MMM- MMMs        -MMMNmmmmmmh +MM /MMs MMy "
+            "+MMM   +MMM- sMMM: -dMMN  hMMN:  ody+  NMMd  /NMMh  MMMh  -hho: :MMMy        dMM hMM yMM: "
+            "dMMd   dMMm   dMMMMMMMd-   mMMMMMMMN+  /NMMMMMMMy   +NMMMMMMMh-  sMMMMMMMMd- mMMdNMMdMMN  "
+            "ooo:   ooo:    :osys+-      :osyso:      /oyys/       /osys+       /osys+-   -ss- ss/oo/  "))
+         (longest-line (apply #'max (mapcar #'length banner))))
+    (put-text-property
+     (point)
+     (dolist (line banner (point))
+       (insert (+doom-dashboard--center
+                +doom-dashboard--width
+                (concat
+                 line (make-string (max 0 (- longest-line (length line)))
+                                   32)))
+               "\n"))
+     'face 'doom-dashboard-banner)))
+
+(setq +doom-dashboard-ascii-banner-fn 'my/doom-dashboard-draw-ascii-banner-fn)
+
+
+;; ------------------------------- workspaces ------------------------------- ;;
 
 (map! :desc "Next workspace" :n "C-l" '+workspace:switch-next
       :desc "Prev workspace" :n "C-h" '+workspace:switch-previous)
@@ -343,14 +376,14 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
         :desc "Prev workspace" :n "C-h" '+workspace:switch-previous))
 (add-hook 'c-mode-hook 'my/c/map-hook)
 
-(global-auto-composition-mode -1)
-(map! :leader :desc "Toggle character composition (laggy for big text)"
-      :n "td" 'auto-composition-mode)
+;; ------------------------------- basic maps ------------------------------- ;;
 
 (map!
  :i "C-h" 'backward-delete-char)
 
 (map! :n "Q" 'kill-this-buffer)
+
+;; ------------------------------- easymotion ------------------------------- ;;
 
 (map! :n "s" nil)
 (map! :prefix "s"
@@ -376,5 +409,62 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
       :desc "find char back" :mn "F" 'evilem-motion-find-char-backward
       :desc "find char back to" :mn "T" 'evilem-motion-find-char-backward-to)
 
+;; --------------------------------- magit ---------------------------------- ;;
+
 (map! :map magit-mode-map
       :nv "x" 'magit-discard)
+
+;; ---------------------------------- etc? ---------------------------------- ;;
+
+(global-auto-composition-mode -1)
+(map! :leader :desc "Toggle character composition (laggy for big text)"
+      :n "td" 'auto-composition-mode)
+
+
+;; ---------------------------------- mail ---------------------------------- ;;
+
+(set-email-account! "gogle"
+  '((mu4e-sent-folder       . "/ncraftertm@gmail.com/[Gmail].Sent Mail")
+    (mu4e-drafts-folder     . "/ncraftertm@gmail.com/[Gmail].Drafts")
+    (mu4e-trash-folder      . "/ncraftertm@gmail.com/[Gmail].Bin")
+    (mu4e-refile-folder     . "/ncraftertm@gmail.com/[Gmail].All mail")
+    (smtpmail-smtp-user     . "ncraftertm@gmail.com")
+    (mu4e-compose-signature . "---\nNick Friday\na.k.a. undefined"))
+  t)
+
+(set-email-account! "ya.ru"
+  '((mu4e-sent-folder       . "/nfriday@yandex.ru/Sent")
+    (mu4e-drafts-folder     . "/nfriday@yandex.ru/Drafts")
+    (mu4e-trash-folder      . "/nfriday@yandex.ru/Trash")
+    (mu4e-refile-folder     . "/nfriday@yandex.ru")
+    (smtpmail-smtp-user     . "nfriday@ya.ru")
+    (mu4e-compose-signature . "---\nNick Friday\na.k.a. undefined")
+    (+mu4e-personal-addresses . '("nfriday@ya.ru" "nfriday@yandex.ru")))
+  t)
+
+(setq +mu4e-header--maildir-colors '(("ncraftertm@gmail.com" . all-the-icons-blue-alt)
+                                     ("nfriday@yandex.ru" . all-the-icons-yellow)))
+
+(setq mu4e-bookmarks
+      '(( :name  "Favs"
+          :query "flag:flagged"
+          :key ?b)
+        ( :name  "Unread"
+          :query "flag:unread AND NOT flag:trashed AND NOT maildir:/\.Spam$/"
+          :key ?u)
+        ( :name "Today"
+          :query "date:today..now AND NOT maildir:/\.Spam$/"
+          :key ?t)
+        ( :name "Week"
+          :query "date:7d..now AND NOT maildir:/\.Spam$/"
+          :hide-unread t
+          :key ?w)
+        ( :name "Docs"
+          :query "mime:application/* AND NOT maildir:/\.Spam$/"
+          :key ?d)
+        ( :name "Images"
+          :query "mime:image/* AND NOT maildir:/\.Spam$/"
+          :key ?i)
+        ( :name "Spam"
+          :query "maildir:/\.Spam$/"
+          :key ?s)))
