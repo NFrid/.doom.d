@@ -136,6 +136,11 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
 (setq-default evil-shift-width 2)
 
 (setq calendar-week-start-day 1)
+(setq org-agenda-start-on-weekday 1)
+
+(use-package! russian-holidays
+  :config
+  (setq calendar-holidays russian-holidays))
 
 
 ;; ---------------------------------- org? ---------------------------------- ;;
