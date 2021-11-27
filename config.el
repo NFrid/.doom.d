@@ -135,12 +135,33 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
 (setq-default standard-indent 2)
 (setq-default evil-shift-width 2)
 
+
+;; --------------------------------- agenda --------------------------------- ;;
+
+(setq org-log-done 'time)
+(setq org-log-into-drawer t)
+
 (setq calendar-week-start-day 1)
 (setq org-agenda-start-on-weekday 1)
 
-(use-package! russian-holidays
-  :config
-  (setq calendar-holidays russian-holidays))
+(setq calendar-holidays
+      '((holiday-fixed 1 1 "New Year")
+        (holiday-fixed 1 2 "New Year Holidays")
+        (holiday-fixed 1 3 "New Year Holidays")
+        (holiday-fixed 1 4 "New Year Holidays")
+        (holiday-fixed 1 5 "New Year Holidays")
+        (holiday-fixed 1 6 "New Year Holidays")
+        (holiday-fixed 1 7 "Christmas")
+        (holiday-fixed 1 8 "New Year Holidays")
+        (holiday-fixed 2 23 "Men's Day (Fake)")
+        (holiday-fixed 3 8 "Women's Day")
+        (holiday-fixed 5 1 "Spring'n'Labor Day")
+        (holiday-fixed 5 9 "Victory Day")
+        (holiday-fixed 6 12 "Russia Day")
+        (holiday-fixed 11 4 "National Unity Day")))
+
+(setq diary-file "~/.doom.d/.local/diary")
+(setq org-agenda-include-diary t)
 
 
 ;; ---------------------------------- org? ---------------------------------- ;;
@@ -417,6 +438,8 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
 ;; --------------------------------- magit ---------------------------------- ;;
 
 (map! :map magit-mode-map
+      :nv "p" 'magit-pull
+      :nv "P" 'magit-push
       :nv "x" 'magit-discard)
 
 ;; ---------------------------------- etc? ---------------------------------- ;;

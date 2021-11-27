@@ -18,5 +18,3 @@
 ;; (package! org-link-minor-mode)
 
 ;; (package! dashboard)
-
-(package! russian-holidays)
