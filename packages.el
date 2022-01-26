@@ -1,7 +1,7 @@
 ;; -*- no-byte-compile: t; -*-
 ;;; $DOOMDIR/packages.el
 
-(package! company-tabnine)
+;; (package! company-tabnine)
 
 (package! tree-sitter)
 (package! tree-sitter-langs)

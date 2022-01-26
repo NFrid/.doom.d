@@ -258,6 +258,9 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
 (setq +zen-mixed-pitch-modes '())
 
 
+(global-hl-todo-mode t)
+
+
 ;; ------------------------------- some stuff ------------------------------- ;;
 
 (use-package! tree-sitter
@@ -284,9 +287,9 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
   (setq company-show-quick-access t)
   (define-key company-active-map (kbd "C-SPC") #'company-abort))
 
-(use-package! company-tabnine
-  :config
-  (add-to-list 'company-backends #'company-tabnine))
+;; (use-package! company-tabnine
+;;   :config
+;;   (add-to-list 'company-backends #'company-tabnine))
 
 
 (use-package! reverse-im
@@ -496,3 +499,13 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
         ( :name "Spam"
           :query "maildir:/\.Spam$/"
           :key ?s)))
+
+(map! :map mu4e-main-mode-map
+      :desc "Update mu index" :n "o" #'mu4e-update-index)
+
+;; -------------------------------- \LaTeX{} -------------------------------- ;;
+
+(setq +latex-viewers '(zathura))
+(setq latex-run-command 'xetex)
+(setq TeX-engine 'xetex)
+(setq bibtex-file-path "~/Documents/bibtex")
