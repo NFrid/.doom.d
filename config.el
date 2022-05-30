@@ -4,6 +4,11 @@
 
 ;; TODO: organize this whole thing
 
+;; TODO: js
+;; ----------------------------------- js ----------------------------------- ;;
+;; (set-formatter! 'eslint "eslint --fix" :modes '(js2-mode))
+
+
 ;; ------------------------------- muh stuff -------------------------------- ;;
 
 (defun ~/magit-process-environment (env)
@@ -454,13 +459,18 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
 
 ;; ---------------------------------- mail ---------------------------------- ;;
 
+(setq mu4e-index-lazy-check t)
+
 (set-email-account! "gogle"
   '((mu4e-sent-folder       . "/ncraftertm@gmail.com/[Gmail].Sent Mail")
     (mu4e-drafts-folder     . "/ncraftertm@gmail.com/[Gmail].Drafts")
     (mu4e-trash-folder      . "/ncraftertm@gmail.com/[Gmail].Bin")
     (mu4e-refile-folder     . "/ncraftertm@gmail.com/[Gmail].All mail")
     (smtpmail-smtp-user     . "ncraftertm@gmail.com")
-    (mu4e-compose-signature . "---\nNick Friday\na.k.a. undefined"))
+    (mu4e-compose-signature . "---\nNick Friday\na.k.a. undefined")
+    (smtpmail-starttls-credentials . '(("smtp.gmail.com" 587 nil nil)))
+    (smtpmail-default-smtp-server . "smtp.gmail.com")
+    (smtpmail-smtp-server . "smtp.gmail.com"))
   t)
 
 (set-email-account! "ya.ru"
@@ -470,7 +480,10 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
     (mu4e-refile-folder     . "/nfriday@yandex.ru")
     (smtpmail-smtp-user     . "nfriday@ya.ru")
     (mu4e-compose-signature . "---\nNick Friday\na.k.a. undefined")
-    (+mu4e-personal-addresses . '("nfriday@ya.ru" "nfriday@yandex.ru")))
+    (+mu4e-personal-addresses . '("nfriday@ya.ru" "nfriday@yandex.ru"))
+    (smtpmail-starttls-credentials . '(("smtp.yandex.ru" 465 nil nil)))
+    (smtpmail-default-smtp-server . "smtp.yandex.com")
+    (smtpmail-smtp-server . "smtp.yandex.com"))
   t)
 
 (setq +mu4e-header--maildir-colors '(("ncraftertm@gmail.com" . all-the-icons-blue-alt)
@@ -509,3 +522,4 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
 (setq latex-run-command 'xetex)
 (setq TeX-engine 'xetex)
 (setq bibtex-file-path "~/Documents/bibtex")
+(setq bibtex-dialect 'biblatex)

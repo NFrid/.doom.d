@@ -15,6 +15,8 @@
 
 (package! prettier-js)
 
+(package! graphviz-dot-mode)
+
 ;; (package! org-link-minor-mode)
 
 ;; (package! dashboard)
