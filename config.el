@@ -452,7 +452,7 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
 
 ;; ---------------------------------- etc? ---------------------------------- ;;
 
-(global-auto-composition-mode -1)
+;; (global-auto-composition-mode -1)
 (map! :leader :desc "Toggle character composition (laggy for big text)"
       :n "td" 'auto-composition-mode)
 
