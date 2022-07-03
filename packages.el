@@ -20,3 +20,5 @@
 ;; (package! org-link-minor-mode)
 
 ;; (package! dashboard)
+
+;; (package! key-chord)

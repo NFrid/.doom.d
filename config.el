@@ -523,3 +523,12 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
 (setq TeX-engine 'xetex)
 (setq bibtex-file-path "~/Documents/bibtex")
 (setq bibtex-dialect 'biblatex)
+
+;; ------------------------------- Key chords ------------------------------- ;;
+
+;; (use-package! key-chord
+;;   :after org
+;;   :config
+;;   (key-chord-define org-mode-map "--" "—")
+;;   (key-chord-define org-mode-map "<<" "«")
+;;   (key-chord-define org-mode-map ">>" "»"))
