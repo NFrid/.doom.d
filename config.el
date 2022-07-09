@@ -268,6 +268,7 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
 
 ;; ------------------------------- some stuff ------------------------------- ;;
 
+[
 (use-package! tree-sitter
   :config
   (require 'tree-sitter-langs)
@@ -275,6 +276,7 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
   (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
   (pushnew! tree-sitter-major-mode-language-alist
             '(scss-mode . css)))
+]
 
 
 (use-package! rainbow-delimiters
@@ -459,6 +461,7 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
 
 ;; ---------------------------------- mail ---------------------------------- ;;
 
+[
 (setq mu4e-index-lazy-check t)
 
 (set-email-account! "gogle"
@@ -515,6 +518,7 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
 
 (map! :map mu4e-main-mode-map
       :desc "Update mu index" :n "o" #'mu4e-update-index)
+]
 
 ;; -------------------------------- \LaTeX{} -------------------------------- ;;
 
